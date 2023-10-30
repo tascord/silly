@@ -1,0 +1,2 @@
+let value = "Hello, world!";
+std.out(value);

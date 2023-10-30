@@ -1,0 +1,42 @@
+COMMENT    = _{ blockComment | inlineComment }
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
+blockComment  = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+inlineComment = _{ "//" ~ (!"\n" ~ ANY)* ~ "\n"? }
+
+expression = {
+    assignment
+  | monadic
+  | dyadic
+  | terms
+  | identifier
+}
+
+assignment =  { "let" ~ identifier ~ "=" ~ expression }
+monadic    =  { verb ~ expression }
+dyadic     =  { (monadic | terms) ~ verb ~ expression }
+term       = _{ numberLiteral | stringLiteral | call | item }
+terms      =  { term+ }
+
+item      = { identifier ~ ("." ~ identifier)+ }
+call      = { item ~ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
+semicolon = _{ ";" }
+
+verb = {
+    "+"
+  | "-"
+  | "*"
+  | "/"
+  | ">"
+  | "<"
+  | ">="
+  | "<="
+  | "=="
+}
+
+identifier    = @{ (ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)*) }
+numberLiteral = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+stringLiteral = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+
+statement = _{ expression }
+program   = _{ SOI ~ (statement ~ semicolon)* ~ EOI }
